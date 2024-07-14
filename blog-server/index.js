@@ -8,14 +8,17 @@ connection.once("open", () => {
   console.log("Mongodb Connected");
 });
 
-//middleware 
-const userRoute = require("./routes/user");
-app.user("/user", userRoute);
 
 const app = express();
 
+//middleware 
+app.use(express.json());
+const userRoute = require("./routes/user");
+app.use("/user", userRoute);
+
+
 const Port = process.env.port || 5000;
 
-app.route("/").get((req,res)=>res.json("Your First rest api "));
+app.get("/",(req,res) => res.json("Your First rest api "));
 
 app.listen(Port, ()=>console.log(`Your Server is running on ${Port}`));
