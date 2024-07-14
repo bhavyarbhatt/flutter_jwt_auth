@@ -27,11 +27,17 @@ router.route("/login").post(async (req, res) => {
       // Find the user by username
       const user = await User.findOne({ username: req.body.username });
   
+      const password = await User.findOne({  password: req.body.password });
       // Check if user exists
       if (!user) {
-        return res.status(401).json({ message: "Invalid username or password" });
+        return res.status(401).json({ message: "Invalid username " });
       }
   
+      // Check if user exists
+      if (!password) {
+        return res.status(401).json({ message: "Invalid  password" });
+      }
+
       // Login successful (replace with appropriate authentication logic)
       res.status(200).json({ message: "Login successful" }); // Consider using JWT for authentication
   
