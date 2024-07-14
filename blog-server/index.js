@@ -8,6 +8,9 @@ connection.once("open", () => {
   console.log("Mongodb Connected");
 });
 
+//middleware 
+const userRoute = require("./routes/user");
+app.user("/user", userRoute);
 
 const app = express();
 
