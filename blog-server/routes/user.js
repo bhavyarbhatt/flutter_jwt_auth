@@ -12,7 +12,6 @@ router.route("/:username").get(  middleware.checkToken, async (req,res)=> {
 
       console.log(`result is  ${user}`);
 
-  
       res.status(200).json({ username: req.params.username }); 
     
     if(!user) {
@@ -24,6 +23,30 @@ router.route("/:username").get(  middleware.checkToken, async (req,res)=> {
       console.log(`Error in User ${err}`);
     } 
 });
+
+router.route("/checkusername/:username").get(async(req,res)=>{
+  try{
+  const user=    await User.findOne({ username: req.params.username });
+
+  res.status(200).json({ username: req.params.username }); 
+  }
+  catch(e){
+
+  }
+  
+  // await User.findOne({ username: req.params.username }, (err, result)=>{
+  //   if (err) return res.status(500).json({msg: err});
+  //   if(result!==null)
+  //   {
+  //     return res.json({
+  //       Status: true
+  //     });
+  //   }
+  //   else return res.json({
+  //       Status: false
+  //   });
+  // })
+})
 
 router.route("/login").post(async (req, res) => {
     try {
