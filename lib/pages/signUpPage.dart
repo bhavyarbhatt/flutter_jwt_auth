@@ -16,6 +16,9 @@ NetworkHandle networkHandle = NetworkHandle();
 TextEditingController _usernameController = TextEditingController();
 TextEditingController _emailController = TextEditingController();
 TextEditingController _passwordController = TextEditingController();
+late String errorText;
+bool validate = false;
+bool circular = false;
 
   @override
   Widget build(BuildContext context) {
@@ -60,18 +63,30 @@ TextEditingController _passwordController = TextEditingController();
                        height: 20,
                     ),
                     InkWell(
-                      onTap: (){
-                        if(_globalkey.currentState!.validate()){
+                      onTap: () async{
+                        setState(() {
+                          circular= true;
+                        });
+                        await checkUser();
+                        if(_globalkey.currentState!.validate() && validate ){
                             Map<String,String>data={
                               "Username": _usernameController.text,
                               "email": _emailController.text,
                               "password": _passwordController.text
                             };
                             print(data);
-                            networkHandle.post("/user/register", data);
+                          await  networkHandle.post("/user/register", data);
+                          setState(() {
+                            circular = false;
+                          });
+                        }
+                        else {
+                          setState(() {
+                            circular = false;
+                          });
                         }
                       },
-                      child: Container(
+                      child: circular ? CircularProgressIndicator() : Container(
                         width: 150,
                         height: 50,
                         decoration: BoxDecoration(
@@ -97,6 +112,33 @@ TextEditingController _passwordController = TextEditingController();
     );
   }
 
+checkUser()  async {
+  if(_usernameController.text.length == 0 ) {
+    setState(() {
+      circular = false;
+      validate = false;
+      errorText = "Username Can't be empty";
+    });
+  } else {
+    var response = await networkHandle
+    .get("/user/checkUsername/${_usernameController.text}/");
+    if(response['Status'])
+    {
+      setState(() {
+      circular = false;
+      validate = false;
+      errorText = "Username already taken";
+    });
+    }
+    else {
+      setState(() {
+      validate = false;
+      
+    });
+    }
+  }
+}
+
   Widget usernameTextFeild() {
     return Padding(
       padding:  EdgeInsets.symmetric(horizontal: 30.0, vertical: 10.0),
@@ -105,12 +147,9 @@ TextEditingController _passwordController = TextEditingController();
           Text("Username"),
           TextFormField(
             controller: _usernameController,
-            validator: (value){
-                if(value!.isEmpty)
-                  return "Username can't be empty";
-                  return null;
-            },
+            
             decoration: InputDecoration(
+              errorText: validate?null:errorText,
               focusedBorder: UnderlineInputBorder(
                 borderSide: BorderSide(
                   color: Colors.black,
